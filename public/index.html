@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa de Satisfação - CSAT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 900px;
+            padding: clamp(16px, 5vw, 40px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: clamp(18px, 5vw, 24px);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: clamp(12px, 3vw, 14px);
+        }
+
+        .ticket-badge {
+            display: inline-block;
+            background: #e8ebff;
+            color: #667eea;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .question-title {
+            color: #333;
+            font-size: clamp(14px, 4vw, 16px);
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .question-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        /* Pergunta 1 - Opções com Emojis */
+        .rating-options {
+            display: flex;
+            justify-content: space-between;
+            gap: clamp(6px, 2vw, 10px);
+            flex-wrap: wrap;
+        }
+
+        .rating-btn {
+            flex: 1 1 auto;
+            min-width: clamp(60px, 15vw, 120px);
+            padding: clamp(8px, 2vw, 12px) clamp(4px, 1vw, 8px);
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(4px, 1vw, 6px);
+            font-size: clamp(9px, 2vw, 11px);
+            color: #666;
+            font-weight: 500;
+        }
+
+        .rating-btn:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+            transform: translateY(-2px);
+        }
+
+        .rating-btn.selected {
+            border-color: #667eea;
+            background: #e8ebff;
+            color: #667eea;
+        }
+
+        .emoji {
+            font-size: clamp(18px, 5vw, 24px);
+            line-height: 1;
+        }
+
+        /* Pergunta 2 - Motivos (Condicional) */
+        #pergunta2 {
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        #pergunta2.visible {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reason-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .reason-option {
+            display: flex;
+            align-items: flex-start;
+            padding: clamp(10px, 2vw, 12px);
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            gap: 12px;
+        }
+
+        .reason-option:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .reason-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .reason-option label {
+            cursor: pointer;
+            flex: 1;
+            color: #666;
+            font-size: clamp(12px, 2vw, 14px);
+            line-height: 1.4;
+        }
+
+        .reason-option input[type="radio"]:checked + label {
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Pergunta 3 - Campo de Texto */
+        textarea {
+            width: 100%;
+            min-height: clamp(100px, 30vh, 120px);
+            padding: clamp(10px, 2vw, 12px);
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: clamp(12px, 2vw, 14px);
+            color: #333;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Botão de Envio */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: clamp(10px, 2vw, 12px) clamp(16px, 4vw, 24px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(12px, 2vw, 14px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        /* Mensagens */
+        .alert {
+            padding: clamp(10px, 2vw, 12px);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: clamp(12px, 2vw, 14px);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert.loading {
+            background: #cce5ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+        }
+
+        .alert.visible {
+            display: block;
+        }
+
+        /* Modal de Agradecimento */
+        .thank-you-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .thank-you-modal.visible {
+            display: flex;
+        }
+
+        .thank-you-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .thank-you-icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .thank-you-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .thank-you-message {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .thank-you-detail {
+            background: #f0f2ff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .btn-close {
+            background: #667eea;
+            color: white;
+            padding: 10px 24px;
+        }
+
+        .btn-close:hover {
+            background: #5568d3;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .rating-options {
+                gap: clamp(4px, 1.5vw, 8px);
+            }
+
+            .rating-btn {
+                min-width: clamp(50px, 12vw, 100px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: clamp(12px, 4vw, 20px);
+            }
+
+            .form-section {
+                margin-bottom: 20px;
+            }
+
+            .rating-options {
+                gap: clamp(4px, 1vw, 6px);
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            button {
+                min-width: unset;
+                width: 100%;
+            }
+
+            .thank-you-content {
+                padding: 30px 20px;
+            }
+
+            .thank-you-icon {
+                font-size: 48px;
+            }
+
+            .thank-you-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Pesquisa de Satisfação</h1>
+            <p>Sua opinião é muito importante para nós</p>
+            <div class="ticket-badge" id="ticketBadge" style="display: none;">
+                Ticket: <span id="ticketNumber"></span>
+            </div>
+        </div>
+
+        <form id="csatForm">
+            <!-- Ticket ID Hidden Field -->
+            <input type="hidden" id="ticketId" name="ticketId" value="">
+
+            <!-- Pergunta 1 -->
+            <div class="form-section">
+                <div class="question-title">
+                    <span class="question-number">1</span>
+                    <span>Como você avaliaria o suporte que recebeu?</span>
+                </div>
+                <div class="rating-options">
+                    <button type="button" class="rating-btn" data-value="5">
+                        <span class="emoji">😄</span>
+                        <span>Muito Satisfeito</span>
+                    </button>
+                    <button type="button" class="rating-btn" data-value="4">
+                        <span class="emoji">🙂</span>
+                        <span>Satisfeito</span>
+                    </button>
+                    <button type="button" class="rating-btn" data-value="3">
+                        <span class="emoji">😐</span>
+                        <span>Neutro</span>
+                    </button>
+                    <button type="button" class="rating-btn" data-value="2">
+                        <span class="emoji">😕</span>
+                        <span>Insatisfeito</span>
+                    </button>
+                    <button type="button" class="rating-btn" data-value="1">
+                        <span class="emoji">😞</span>
+                        <span>Muito Insatisfeito</span>
+                    </button>
+                </div>
+                <input type="hidden" id="rating" name="rating" value="">
+            </div>
+
+            <!-- Pergunta 2 (Condicional) -->
+            <div id="pergunta2" class="form-section">
+                <div class="question-title">
+                    <span class="question-number">2</span>
+                    <span>Selecione um motivo relacionado à sua experiência.</span>
+                </div>
+                <div class="reason-options">
+                    <label class="reason-option">
+                        <input type="radio" name="reason" value="delay">
+                        <label for="">O problema demorou muito para ser resolvido.</label>
+                    </label>
+                    <label class="reason-option">
+                        <input type="radio" name="reason" value="unresolved">
+                        <label for="">O problema não foi resolvido.</label>
+                    </label>
+                    <label class="reason-option">
+                        <input type="radio" name="reason" value="unclear">
+                        <label for="">As informações fornecidas não eram claras nem úteis.</label>
+                    </label>
+                </div>
+                <input type="hidden" id="reason" name="reason" value="">
+            </div>
+
+            <!-- Pergunta 3 -->
+            <div class="form-section">
+                <div class="question-title">
+                    <span class="question-number">3</span>
+                    <span>Compartilhe suas impressões sobre o apoio que você recebeu.</span>
+                </div>
+                <textarea id="impressions" name="impressions" placeholder="Digite suas impressões aqui..."></textarea>
+            </div>
+
+            <!-- Mensagens de Feedback -->
+            <div id="alert" class="alert"></div>
+
+            <!-- Botões de Ação -->
+            <div class="button-group">
+                <button type="submit" class="btn-submit" id="submitBtn">Enviar Pesquisa</button>
+                <button type="reset" class="btn-reset">Limpar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modal de Agradecimento -->
+    <div class="thank-you-modal" id="thankYouModal">
+        <div class="thank-you-content">
+            <div class="thank-you-icon">✅</div>
+            <div class="thank-you-title">Agradecemos sua resposta!</div>
+            <div class="thank-you-message">
+                Sua avaliação foi registrada com sucesso e nos ajuda a melhorar continuamente nosso atendimento.
+            </div>
+            <div class="thank-you-detail" id="thankYouDetail">
+                Ticket: <span id="thankYouTicket"></span>
+            </div>
+            <button type="button" class="btn-close" id="closeBtn">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURAÇÃO DO WEBHOOK
+        // ============================================
+        const WEBHOOK_URL = 'https://YOUR_ZENDESK_WEBHOOK_URL_HERE'; // Substitua pela URL real
+        
+        // Mapeamento de valores para labels
+        const ratingLabels = {
+            '5': 'Muito Satisfeito',
+            '4': 'Satisfeito',
+            '3': 'Neutro',
+            '2': 'Insatisfeito',
+            '1': 'Muito Insatisfeito'
+        };
+
+        const reasonLabels = {
+            'delay': 'O problema demorou muito para ser resolvido',
+            'unresolved': 'O problema não foi resolvido',
+            'unclear': 'As informações fornecidas não eram claras nem úteis'
+        };
+
+        // ============================================
+        // EXTRAÇÃO DO TICKET ID DA URL
+        // ============================================
+        function getTicketIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('ticketId') || null;
+        }
+
+        function initializeTicketId() {
+            const ticketId = getTicketIdFromUrl();
+            
+            if (ticketId) {
+                document.getElementById('ticketId').value = ticketId;
+                document.getElementById('ticketNumber').textContent = ticketId;
+                document.getElementById('ticketBadge').style.display = 'inline-block';
+                console.log('🎫 Ticket ID capturado:', ticketId);
+            } else {
+                console.warn('⚠️ Nenhum ticketId encontrado na URL');
+            }
+        }
+
+        // ============================================
+        // ELEMENTOS DOM
+        // ============================================
+        const form = document.getElementById('csatForm');
+        const ratingButtons = document.querySelectorAll('.rating-btn');
+        const ratingInput = document.getElementById('rating');
+        const pergunta2 = document.getElementById('pergunta2');
+        const reasonRadios = document.querySelectorAll('input[name="reason"]');
+        const reasonInput = document.getElementById('reason');
+        const alertBox = document.getElementById('alert');
+        const ticketIdInput = document.getElementById('ticketId');
+        const submitBtn = document.getElementById('submitBtn');
+        const thankYouModal = document.getElementById('thankYouModal');
+        const closeBtn = document.getElementById('closeBtn');
+
+        // ============================================
+        // EVENTOS: Selecionar rating
+        // ============================================
+        ratingButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Remove seleção anterior
+                ratingButtons.forEach(btn => btn.classList.remove('selected'));
+
+                // Adiciona seleção atual
+                this.classList.add('selected');
+                const value = this.dataset.value;
+                ratingInput.value = value;
+
+                // Mostra ou esconde Pergunta 2
+                if (value <= 3) {
+                    pergunta2.classList.add('visible');
+                } else {
+                    pergunta2.classList.remove('visible');
+                    // Limpa seleção anterior da pergunta 2
+                    reasonRadios.forEach(radio => radio.checked = false);
+                    reasonInput.value = '';
+                }
+            });
+        });
+
+        // ============================================
+        // EVENTOS: Selecionar motivo
+        // ============================================
+        reasonRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                reasonInput.value = this.value;
+            });
+        });
+
+        // ============================================
+        // FUNÇÃO: Gerar ID único para submissão
+        // ============================================
+        function generateSubmissionId() {
+            const ticketId = ticketIdInput.value || 'unknown';
+            const timestamp = Date.now();
+            return `survey_${ticketId}_${timestamp}`;
+        }
+
+        // ============================================
+        // FUNÇÃO: Construir Payload para Webhook
+        // ============================================
+        function buildWebhookPayload() {
+            const rating = ratingInput.value;
+            const reason = reasonInput.value;
+
+            const payload = {
+                event_type: 'csat_survey_submitted',
+                timestamp: new Date().toISOString(),
+                survey_data: {
+                    ticket_id: ticketIdInput.value,
+                    rating: parseInt(rating),
+                    rating_label: ratingLabels[rating],
+                    reason: reason ? reason : null,
+                    reason_label: reason ? reasonLabels[reason] : null,
+                    impressions: document.getElementById('impressions').value.trim(),
+                    source: 'zendesk_widget_csat'
+                },
+                metadata: {
+                    user_agent: navigator.userAgent,
+                    submission_id: generateSubmissionId(),
+                    page_url: window.location.href
+                }
+            };
+
+            return payload;
+        }
+
+        // ============================================
+        // FUNÇÃO: Enviar para Webhook
+        // ============================================
+        async function submitToWebhook(payload) {
+            try {
+                console.log('📤 Enviando payload para webhook:', payload);
+
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('✅ Resposta do webhook:', result);
+                return result;
+
+            } catch (error) {
+                console.error('❌ Erro ao enviar para webhook:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // FUNÇÃO: Exibir alertas
+        // ============================================
+        function showAlert(message, type) {
+            alertBox.textContent = message;
+            alertBox.className = `alert ${type} visible`;
+
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertBox.classList.remove('visible');
+                }, 3000);
+            }
+        }
+
+        // ============================================
+        // FUNÇÃO: Exibir Modal de Agradecimento
+        // ============================================
+        function showThankYouModal() {
+            document.getElementById('thankYouTicket').textContent = ticketIdInput.value;
+            thankYouModal.classList.add('visible');
+            form.style.display = 'none';
+        }
+
+        function closeThankYouModal() {
+            thankYouModal.classList.remove('visible');
+            // Opcional: Fechar a abas/webview após 3 segundos
+            setTimeout(() => {
+                // window.close(); // Descomente se quiser fechar a aba automaticamente
+            }, 3000);
+        }
+
+        // ============================================
+        // EVENTO: Envio do formulário
+        // ============================================
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Validação
+            if (!ratingInput.value) {
+                showAlert('Por favor, selecione uma opção na Pergunta 1.', 'error');
+                return;
+            }
+
+            if (ratingInput.value <= 3 && !reasonInput.value) {
+                showAlert('Por favor, selecione um motivo na Pergunta 2.', 'error');
+                return;
+            }
+
+            if (!ticketIdInput.value) {
+                showAlert('⚠️ Ticket ID não encontrado. Verifique a URL.', 'error');
+                return;
+            }
+
+            // Desabilitar botão de submit
+            submitBtn.disabled = true;
+
+            // Mostrar estado de carregamento
+            showAlert('⏳ Enviando pesquisa...', 'loading');
+
+            try {
+                // Construir payload
+                const payload = buildWebhookPayload();
+
+                // Enviar para webhook
+                await submitToWebhook(payload);
+
+                // Limpar alertas
+                alertBox.classList.remove('visible');
+
+                // Mostrar modal de agradecimento
+                showThankYouModal();
+
+                console.log('✅ Pesquisa enviada com sucesso!');
+
+            } catch (error) {
+                showAlert('❌ Erro ao enviar pesquisa. Tente novamente.', 'error');
+                console.error('Erro detalhado:', error);
+                submitBtn.disabled = false;
+            }
+        });
+
+        // ============================================
+        // EVENTO: Fechar Modal
+        // ============================================
+        closeBtn.addEventListener('click', closeThankYouModal);
+
+        // Fechar modal clicando fora
+        thankYouModal.addEventListener('click', function(e) {
+            if (e.target === thankYouModal) {
+                closeThankYouModal();
+            }
+        });
+
+        // ============================================
+        // EVENTO: Reset do formulário
+        // ============================================
+        form.addEventListener('reset', function() {
+            setTimeout(() => {
+                ratingButtons.forEach(btn => btn.classList.remove('selected'));
+                pergunta2.classList.remove('visible');
+                reasonRadios.forEach(radio => radio.checked = false);
+                alertBox.classList.remove('visible');
+                submitBtn.disabled = false;
+            }, 0);
+        });
+
+        // ============================================
+        // INICIALIZAÇÃO
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTicketId();
+        });
+    </script>
+</body>
+</html>
