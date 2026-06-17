@@ -1,0 +1,10 @@
+{
+  "name": "csat-survey",
+  "version": "1.0.0",
+  "description": "Pesquisa CSAT integrada com Zendesk",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel"
+  }
+}
