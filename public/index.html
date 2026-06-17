@@ -10,7 +10,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -86,7 +85,6 @@
             flex-shrink: 0;
         }
 
-        /* Pergunta 1 - Opções com Emojis */
         .rating-options {
             display: flex;
             justify-content: space-between;
@@ -130,7 +128,6 @@
             line-height: 1;
         }
 
-        /* Pergunta 2 - Motivos (Condicional) */
         #pergunta2 {
             display: none;
             animation: slideDown 0.3s ease;
@@ -196,7 +193,6 @@
             font-weight: 600;
         }
 
-        /* Pergunta 3 - Campo de Texto */
         textarea {
             width: 100%;
             min-height: clamp(100px, 30vh, 120px);
@@ -216,7 +212,6 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        /* Botão de Envio */
         .button-group {
             display: flex;
             gap: 12px;
@@ -262,7 +257,6 @@
             background: #e0e0e0;
         }
 
-        /* Mensagens */
         .alert {
             padding: clamp(10px, 2vw, 12px);
             border-radius: 8px;
@@ -305,7 +299,6 @@
             display: block;
         }
 
-        /* Modal de Agradecimento */
         .thank-you-modal {
             display: none;
             position: fixed;
@@ -394,7 +387,6 @@
             background: #5568d3;
         }
 
-        /* Responsivo */
         @media (max-width: 768px) {
             .rating-options {
                 gap: clamp(4px, 1.5vw, 8px);
@@ -453,10 +445,8 @@
         </div>
 
         <form id="csatForm">
-            <!-- Ticket ID Hidden Field -->
             <input type="hidden" id="ticketId" name="ticketId" value="">
 
-            <!-- Pergunta 1 -->
             <div class="form-section">
                 <div class="question-title">
                     <span class="question-number">1</span>
@@ -487,7 +477,6 @@
                 <input type="hidden" id="rating" name="rating" value="">
             </div>
 
-            <!-- Pergunta 2 (Condicional) -->
             <div id="pergunta2" class="form-section">
                 <div class="question-title">
                     <span class="question-number">2</span>
@@ -510,7 +499,6 @@
                 <input type="hidden" id="reason" name="reason" value="">
             </div>
 
-            <!-- Pergunta 3 -->
             <div class="form-section">
                 <div class="question-title">
                     <span class="question-number">3</span>
@@ -519,10 +507,8 @@
                 <textarea id="impressions" name="impressions" placeholder="Digite suas impressões aqui..."></textarea>
             </div>
 
-            <!-- Mensagens de Feedback -->
             <div id="alert" class="alert"></div>
 
-            <!-- Botões de Ação -->
             <div class="button-group">
                 <button type="submit" class="btn-submit" id="submitBtn">Enviar Pesquisa</button>
                 <button type="reset" class="btn-reset">Limpar</button>
@@ -530,7 +516,6 @@
         </form>
     </div>
 
-    <!-- Modal de Agradecimento -->
     <div class="thank-you-modal" id="thankYouModal">
         <div class="thank-you-content">
             <div class="thank-you-icon">✅</div>
@@ -546,11 +531,6 @@
     </div>
 
     <script>
-        // ============================================
-        // CONFIGURAÇÃO DO WEBHOOK
-        // ============================================
-        const WEBHOOK_URL = 'https://YOUR_ZENDESK_WEBHOOK_URL_HERE'; // Substitua pela URL real
-        
         // Mapeamento de valores para labels
         const ratingLabels = {
             '5': 'Muito Satisfeito',
@@ -566,9 +546,7 @@
             'unclear': 'As informações fornecidas não eram claras nem úteis'
         };
 
-        // ============================================
-        // EXTRAÇÃO DO TICKET ID DA URL
-        // ============================================
+        // Extração do Ticket ID
         function getTicketIdFromUrl() {
             const params = new URLSearchParams(window.location.search);
             return params.get('ticketId') || null;
@@ -587,9 +565,7 @@
             }
         }
 
-        // ============================================
-        // ELEMENTOS DOM
-        // ============================================
+        // Elementos DOM
         const form = document.getElementById('csatForm');
         const ratingButtons = document.querySelectorAll('.rating-btn');
         const ratingInput = document.getElementById('rating');
@@ -602,59 +578,45 @@
         const thankYouModal = document.getElementById('thankYouModal');
         const closeBtn = document.getElementById('closeBtn');
 
-        // ============================================
-        // EVENTOS: Selecionar rating
-        // ============================================
+        // Eventos: Selecionar rating
         ratingButtons.forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
-
-                // Remove seleção anterior
                 ratingButtons.forEach(btn => btn.classList.remove('selected'));
-
-                // Adiciona seleção atual
                 this.classList.add('selected');
                 const value = this.dataset.value;
                 ratingInput.value = value;
 
-                // Mostra ou esconde Pergunta 2
                 if (value <= 3) {
                     pergunta2.classList.add('visible');
                 } else {
                     pergunta2.classList.remove('visible');
-                    // Limpa seleção anterior da pergunta 2
                     reasonRadios.forEach(radio => radio.checked = false);
                     reasonInput.value = '';
                 }
             });
         });
 
-        // ============================================
-        // EVENTOS: Selecionar motivo
-        // ============================================
+        // Eventos: Selecionar motivo
         reasonRadios.forEach(radio => {
             radio.addEventListener('change', function() {
                 reasonInput.value = this.value;
             });
         });
 
-        // ============================================
-        // FUNÇÃO: Gerar ID único para submissão
-        // ============================================
+        // Gerar ID único
         function generateSubmissionId() {
             const ticketId = ticketIdInput.value || 'unknown';
             const timestamp = Date.now();
             return `survey_${ticketId}_${timestamp}`;
         }
 
-        // ============================================
-        // FUNÇÃO: Construir Payload para Webhook
-        // ============================================
-        function buildWebhookPayload() {
+        // Construir Payload
+        function buildPayload() {
             const rating = ratingInput.value;
             const reason = reasonInput.value;
 
-            const payload = {
+            return {
                 event_type: 'csat_survey_submitted',
                 timestamp: new Date().toISOString(),
                 survey_data: {
@@ -672,18 +634,14 @@
                     page_url: window.location.href
                 }
             };
-
-            return payload;
         }
 
-        // ============================================
-        // FUNÇÃO: Enviar para Webhook
-        // ============================================
-        async function submitToWebhook(payload) {
+        // ✅ ENVIAR PARA SEU PRÓPRIO BACKEND (MESMO DOMÍNIO)
+        async function submitSurvey(payload) {
             try {
-                console.log('📤 Enviando payload para webhook:', payload);
+                console.log('📤 Enviando para /api/submit-survey:', payload);
 
-                const response = await fetch(WEBHOOK_URL, {
+                const response = await fetch('/api/submit-survey', {  // ✅ MESMO DOMÍNIO
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -696,18 +654,16 @@
                 }
 
                 const result = await response.json();
-                console.log('✅ Resposta do webhook:', result);
+                console.log('✅ Resposta do backend:', result);
                 return result;
 
             } catch (error) {
-                console.error('❌ Erro ao enviar para webhook:', error);
+                console.error('❌ Erro ao enviar para backend:', error);
                 throw error;
             }
         }
 
-        // ============================================
-        // FUNÇÃO: Exibir alertas
-        // ============================================
+        // Exibir alertas
         function showAlert(message, type) {
             alertBox.textContent = message;
             alertBox.className = `alert ${type} visible`;
@@ -719,9 +675,7 @@
             }
         }
 
-        // ============================================
-        // FUNÇÃO: Exibir Modal de Agradecimento
-        // ============================================
+        // Exibir Modal de Agradecimento
         function showThankYouModal() {
             document.getElementById('thankYouTicket').textContent = ticketIdInput.value;
             thankYouModal.classList.add('visible');
@@ -730,15 +684,9 @@
 
         function closeThankYouModal() {
             thankYouModal.classList.remove('visible');
-            // Opcional: Fechar a abas/webview após 3 segundos
-            setTimeout(() => {
-                // window.close(); // Descomente se quiser fechar a aba automaticamente
-            }, 3000);
         }
 
-        // ============================================
-        // EVENTO: Envio do formulário
-        // ============================================
+        // Evento: Envio do formulário
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -758,25 +706,15 @@
                 return;
             }
 
-            // Desabilitar botão de submit
             submitBtn.disabled = true;
-
-            // Mostrar estado de carregamento
             showAlert('⏳ Enviando pesquisa...', 'loading');
 
             try {
-                // Construir payload
-                const payload = buildWebhookPayload();
-
-                // Enviar para webhook
-                await submitToWebhook(payload);
-
-                // Limpar alertas
+                const payload = buildPayload();
+                await submitSurvey(payload);  // ✅ Envia para /api/submit-survey
+                
                 alertBox.classList.remove('visible');
-
-                // Mostrar modal de agradecimento
                 showThankYouModal();
-
                 console.log('✅ Pesquisa enviada com sucesso!');
 
             } catch (error) {
@@ -786,21 +724,16 @@
             }
         });
 
-        // ============================================
-        // EVENTO: Fechar Modal
-        // ============================================
+        // Evento: Fechar Modal
         closeBtn.addEventListener('click', closeThankYouModal);
 
-        // Fechar modal clicando fora
         thankYouModal.addEventListener('click', function(e) {
             if (e.target === thankYouModal) {
                 closeThankYouModal();
             }
         });
 
-        // ============================================
-        // EVENTO: Reset do formulário
-        // ============================================
+        // Evento: Reset
         form.addEventListener('reset', function() {
             setTimeout(() => {
                 ratingButtons.forEach(btn => btn.classList.remove('selected'));
@@ -808,12 +741,12 @@
                 reasonRadios.forEach(radio => radio.checked = false);
                 alertBox.classList.remove('visible');
                 submitBtn.disabled = false;
+                form.style.display = 'block';
+                thankYouModal.classList.remove('visible');
             }, 0);
         });
 
-        // ============================================
-        // INICIALIZAÇÃO
-        // ============================================
+        // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
             initializeTicketId();
         });
