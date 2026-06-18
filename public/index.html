@@ -465,6 +465,17 @@
             white-space: pre-wrap;
         }
 
+        .btn-close-error {
+            background: #667eea;
+            color: white;
+            padding: 10px 24px;
+            margin-top: 20px;
+        }
+        
+        .btn-close-error:hover {
+            background: #5568d3;
+        }
+        
         @media (max-width: 768px) {
             .rating-options {
                 gap: clamp(4px, 1.5vw, 8px);
@@ -599,6 +610,7 @@
         <div class="spinner"></div>
     </div>
 
+    <!-- Erro - Survey Já Submetida -->
     <div class="error-message" id="errorMessage">
         <div class="error-content">
             <div class="error-icon">⚠️</div>
@@ -606,9 +618,10 @@
             <div class="error-message-text">
                 Uma pesquisa de satisfação já foi submetida para este ticket.
                 Você não pode submeter novamente.
-
+    
                 Obrigado por sua participação!
             </div>
+            <button type="button" class="btn-close-error" id="closeErrorBtn">Fechar</button>
         </div>
     </div>
 
@@ -817,6 +830,19 @@
             thankYouModal.classList.remove('visible');
         }
 
+        // ============================================
+        // FUNÇÃO: Fechar Modal de Erro
+        // ============================================
+        
+        function closeErrorMessage() {
+            const errorMessage = document.getElementById('errorMessage');
+            if (errorMessage) {
+                errorMessage.classList.remove('visible');
+                // Opcional: recarregar página ou ir para página anterior
+                // setTimeout(() => { window.history.back(); }, 500);
+            }
+        }
+
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -860,6 +886,26 @@
                 closeThankYouModal();
             }
         });
+
+        // ============================================
+        // EVENT LISTENERS: Modal de Erro
+        // ============================================
+        
+        const closeErrorBtn = document.getElementById('closeErrorBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        if (closeErrorBtn) {
+            closeErrorBtn.addEventListener('click', closeErrorMessage);
+        }
+        
+        if (errorMessage) {
+            errorMessage.addEventListener('click', function(e) {
+                // Fechar se clicar fora do conteúdo
+                if (e.target === errorMessage) {
+                    closeErrorMessage();
+                }
+            });
+        }
 
         form.addEventListener('reset', function() {
             setTimeout(() => {
