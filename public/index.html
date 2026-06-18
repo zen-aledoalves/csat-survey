@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pesquisa de Satisfação - CSAT</title>
+    <title>Pesquisa de Satisfação CSAT</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             padding: 20px;
         }
 
@@ -24,392 +25,51 @@
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
             width: 100%;
-            max-width: 900px;
-            padding: clamp(16px, 5vw, 40px);
         }
 
         .header {
-            text-align: center;
             margin-bottom: 30px;
+            text-align: center;
         }
 
         .header h1 {
-            color: #333;
-            font-size: clamp(18px, 5vw, 24px);
-            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 10px;
         }
 
         .header p {
-            color: #666;
-            font-size: clamp(12px, 3vw, 14px);
-        }
-
-        .ticket-badge {
-            display: inline-block;
-            background: #e8ebff;
-            color: #667eea;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 8px;
-        }
-
-        .form-section {
-            margin-bottom: 30px;
-        }
-
-        .question-title {
-            color: #333;
-            font-size: clamp(14px, 4vw, 16px);
-            font-weight: 600;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .question-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #667eea;
-            color: white;
-            font-weight: bold;
+            color: #7f8c8d;
             font-size: 14px;
-            flex-shrink: 0;
         }
 
-        .rating-options {
-            display: flex;
-            justify-content: space-between;
-            gap: clamp(6px, 2vw, 10px);
-            flex-wrap: wrap;
-        }
-
-        .rating-btn {
-            flex: 1 1 auto;
-            min-width: clamp(60px, 15vw, 120px);
-            padding: clamp(8px, 2vw, 12px) clamp(4px, 1vw, 8px);
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: #f9f9f9;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: clamp(4px, 1vw, 6px);
-            font-size: clamp(9px, 2vw, 11px);
-            color: #666;
-            font-weight: 500;
-        }
-
-        .rating-btn:hover {
-            border-color: #667eea;
-            background: #f0f2ff;
-            transform: translateY(-2px);
-        }
-
-        .rating-btn.selected {
-            border-color: #667eea;
-            background: #e8ebff;
-            color: #667eea;
-        }
-
-        .emoji {
-            font-size: clamp(18px, 5vw, 24px);
-            line-height: 1;
-        }
-
-        #pergunta2 {
-            display: none;
-            animation: slideDown 0.3s ease;
-        }
-
-        #pergunta2.visible {
-            display: block;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .reason-options {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .reason-option {
-            display: flex;
-            align-items: flex-start;
-            padding: clamp(10px, 2vw, 12px);
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: #f9f9f9;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            gap: 12px;
-        }
-
-        .reason-option:hover {
-            border-color: #667eea;
-            background: #f0f2ff;
-        }
-
-        .reason-option input[type="radio"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: #667eea;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .reason-option label {
-            cursor: pointer;
-            flex: 1;
-            color: #666;
-            font-size: clamp(12px, 2vw, 14px);
-            line-height: 1.4;
-        }
-
-        .reason-option input[type="radio"]:checked + label {
-            color: #333;
-            font-weight: 600;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: clamp(100px, 30vh, 120px);
-            padding: clamp(10px, 2vw, 12px);
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: clamp(12px, 2vw, 14px);
-            color: #333;
-            resize: vertical;
-            transition: border-color 0.3s ease;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            flex: 1 1 auto;
-            min-width: 120px;
-            padding: clamp(10px, 2vw, 12px) clamp(16px, 4vw, 24px);
-            border: none;
-            border-radius: 8px;
-            font-size: clamp(12px, 2vw, 14px);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-submit {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-submit:hover:not(:disabled) {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-submit:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-reset {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-reset:hover {
-            background: #e0e0e0;
-        }
-
-        .alert {
-            padding: clamp(10px, 2vw, 12px);
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: clamp(12px, 2vw, 14px);
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .alert.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .alert.loading {
-            background: #cce5ff;
-            color: #004085;
-            border: 1px solid #b8daff;
-        }
-
-        .alert.visible {
-            display: block;
-        }
-
-        .thank-you-modal {
+        /* Loading Spinner */
+        .spinner-overlay {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
             z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s ease;
         }
 
-        .thank-you-modal.visible {
-            display: flex;
-        }
-
-        .thank-you-content {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            text-align: center;
-            max-width: 400px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.4s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .thank-you-icon {
-            font-size: 60px;
-            margin-bottom: 16px;
-            animation: bounce 0.6s ease;
-        }
-
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .thank-you-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 12px;
-        }
-
-        .thank-you-message {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 24px;
-            line-height: 1.6;
-        }
-
-        .thank-you-detail {
-            background: #f0f2ff;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #667eea;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .btn-close {
-            background: #667eea;
-            color: white;
-            padding: 10px 24px;
-        }
-
-        .btn-close:hover {
-            background: #5568d3;
-        }
-
-        .loading-spinner {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 1999;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .loading-spinner.visible {
+        .spinner-overlay.active {
             display: flex;
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 4px solid rgba(102, 126, 234, 0.2);
             border-radius: 50%;
+            border-top: 4px solid #667eea;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
         }
 
@@ -418,563 +78,480 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error-message {
+        /* Survey Form */
+        .survey-form {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s ease;
         }
 
-        .error-message.visible {
+        .survey-form.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .rating-options {
             display: flex;
+            justify-content: space-between;
+            gap: 10px;
         }
 
-        .error-content {
+        .rating-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
             background: white;
-            border-radius: 16px;
-            padding: 40px;
-            text-align: center;
-            max-width: 400px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.4s ease;
+            border-radius: 8px;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
 
-        .error-icon {
-            font-size: 60px;
-            margin-bottom: 16px;
+        .rating-btn:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+            transform: scale(1.05);
         }
 
-        .error-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 12px;
-        }
-
-        .error-message-text {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        .btn-close-error {
+        .rating-btn.active {
+            border-color: #667eea;
             background: #667eea;
             color: white;
-            padding: 10px 24px;
-            margin-top: 20px;
         }
-        
-        .btn-close-error:hover {
-            background: #5568d3;
-        }
-        
-        @media (max-width: 768px) {
-            .rating-options {
-                gap: clamp(4px, 1.5vw, 8px);
-            }
 
-            .rating-btn {
-                min-width: clamp(50px, 12vw, 100px);
-            }
+        .rating-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .conditional-question {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .conditional-question.active {
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.2s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reset-btn {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .reset-btn:hover {
+            background: #d5dbde;
+        }
+
+        /* Already Submitted Message */
+        .already-submitted {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .already-submitted.active {
+            display: block;
+        }
+
+        .already-submitted-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .already-submitted h2 {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .already-submitted p {
+            color: #7f8c8d;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Error Message */
+        .error-message {
+            display: none;
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #c33;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            background: #efe;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #3c3;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .success-message.active {
+            display: block;
         }
 
         @media (max-width: 480px) {
             .container {
-                padding: clamp(12px, 4vw, 20px);
+                padding: 25px;
             }
 
-            .form-section {
-                margin-bottom: 20px;
+            .header h1 {
+                font-size: 20px;
             }
 
-            .rating-options {
-                gap: clamp(4px, 1vw, 6px);
-            }
-
-            .button-group {
-                flex-direction: column;
-                gap: 8px;
+            .rating-btn {
+                padding: 12px;
+                font-size: 24px;
             }
 
             button {
-                min-width: unset;
-                width: 100%;
-            }
-
-            .thank-you-content {
-                padding: 30px 20px;
-            }
-
-            .thank-you-icon {
-                font-size: 48px;
-            }
-
-            .thank-you-title {
-                font-size: 20px;
+                padding: 10px 15px;
+                font-size: 13px;
             }
         }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 Pesquisa de Satisfação</h1>
-            <p>Sua opinião é muito importante para nós</p>
-            <div class="ticket-badge" id="ticketBadge" style="display: none;">
-                Ticket: <span id="ticketNumber"></span>
-            </div>
-        </div>
-
-        <form id="csatForm">
-            <input type="hidden" id="ticketId" name="ticketId" value="">
-
-            <div class="form-section">
-                <div class="question-title">
-                    <span class="question-number">1</span>
-                    <span>Como você avaliaria o suporte que recebeu?</span>
-                </div>
-                <div class="rating-options">
-                    <button type="button" class="rating-btn" data-value="5">
-                        <span class="emoji">😄</span>
-                        <span>Muito Satisfeito</span>
-                    </button>
-                    <button type="button" class="rating-btn" data-value="4">
-                        <span class="emoji">🙂</span>
-                        <span>Satisfeito</span>
-                    </button>
-                    <button type="button" class="rating-btn" data-value="3">
-                        <span class="emoji">😐</span>
-                        <span>Neutro</span>
-                    </button>
-                    <button type="button" class="rating-btn" data-value="2">
-                        <span class="emoji">😕</span>
-                        <span>Insatisfeito</span>
-                    </button>
-                    <button type="button" class="rating-btn" data-value="1">
-                        <span class="emoji">😞</span>
-                        <span>Muito Insatisfeito</span>
-                    </button>
-                </div>
-                <input type="hidden" id="rating" name="rating" value="">
-            </div>
-
-            <div id="pergunta2" class="form-section">
-                <div class="question-title">
-                    <span class="question-number">2</span>
-                    <span>Selecione um motivo relacionado à sua experiência.</span>
-                </div>
-                <div class="reason-options">
-                    <label class="reason-option">
-                        <input type="radio" name="reason" value="delay">
-                        <label for="">O problema demorou muito para ser resolvido.</label>
-                    </label>
-                    <label class="reason-option">
-                        <input type="radio" name="reason" value="unresolved">
-                        <label for="">O problema não foi resolvido.</label>
-                    </label>
-                    <label class="reason-option">
-                        <input type="radio" name="reason" value="unclear">
-                        <label for="">As informações fornecidas não eram claras nem úteis.</label>
-                    </label>
-                </div>
-                <input type="hidden" id="reason" name="reason" value="">
-            </div>
-
-            <div class="form-section">
-                <div class="question-title">
-                    <span class="question-number">3</span>
-                    <span>Compartilhe suas impressões sobre o apoio que você recebeu.</span>
-                </div>
-                <textarea id="impressions" name="impressions" placeholder="Digite suas impressões aqui..."></textarea>
-            </div>
-
-            <div id="alert" class="alert"></div>
-
-            <div class="button-group">
-                <button type="submit" class="btn-submit" id="submitBtn">Enviar Pesquisa</button>
-                <button type="reset" class="btn-reset">Limpar</button>
-            </div>
-        </form>
-    </div>
-
-    <div class="loading-spinner" id="loadingSpinner">
+    <!-- Loading Spinner -->
+    <div class="spinner-overlay" id="spinnerOverlay">
         <div class="spinner"></div>
     </div>
 
-    <!-- Erro - Survey Já Submetida -->
-    <div class="error-message" id="errorMessage">
-        <div class="error-content">
-            <div class="error-icon">⚠️</div>
-            <div class="error-title">Pesquisa Já Submetida</div>
-            <div class="error-message-text">
-                Uma pesquisa de satisfação já foi submetida para este ticket.
-                Você não pode submeter novamente.
-    
-                Obrigado por sua participação!
-            </div>
-            <button type="button" class="btn-close-error" id="closeErrorBtn">Fechar</button>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Pesquisa de Satisfação</h1>
+            <p>Sua opinião é importante para nós</p>
         </div>
-    </div>
 
-    <div class="thank-you-modal" id="thankYouModal">
-        <div class="thank-you-content">
-            <div class="thank-you-icon">✅</div>
-            <div class="thank-you-title">Agradecemos sua resposta!</div>
-            <div class="thank-you-message">
-                Sua avaliação foi registrada com sucesso e nos ajuda a melhorar continuamente nosso atendimento.
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage"></div>
+
+        <!-- Survey Form -->
+        <form class="survey-form" id="surveyForm">
+            <!-- Question 1: Rating -->
+            <div class="form-group">
+                <label for="rating">Como você avalia o atendimento recebido?</label>
+                <div class="rating-options">
+                    <button type="button" class="rating-btn" data-value="1" data-emoji="😞">
+                        <span>😞</span>
+                        <span class="rating-label">Péssimo</span>
+                    </button>
+                    <button type="button" class="rating-btn" data-value="2" data-emoji="😕">
+                        <span>😕</span>
+                        <span class="rating-label">Ruim</span>
+                    </button>
+                    <button type="button" class="rating-btn" data-value="3" data-emoji="😐">
+                        <span>😐</span>
+                        <span class="rating-label">Neutro</span>
+                    </button>
+                    <button type="button" class="rating-btn" data-value="4" data-emoji="🙂">
+                        <span>🙂</span>
+                        <span class="rating-label">Bom</span>
+                    </button>
+                    <button type="button" class="rating-btn" data-value="5" data-emoji="😊">
+                        <span>😊</span>
+                        <span class="rating-label">Excelente</span>
+                    </button>
+                </div>
             </div>
-            <div class="thank-you-detail" id="thankYouDetail">
-                Ticket: <span id="thankYouTicket"></span>
+
+            <!-- Question 2: Conditional Comment -->
+            <div class="form-group conditional-question" id="commentSection">
+                <label for="comment">Você gostaria de comentar sobre sua experiência? (Opcional)</label>
+                <textarea id="comment" placeholder="Digite seu comentário aqui..."></textarea>
             </div>
-            <button type="button" class="btn-close" id="closeBtn">Fechar</button>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button type="submit" class="submit-btn" id="submitBtn">Enviar</button>
+                <button type="reset" class="reset-btn" id="resetBtn">Limpar</button>
+            </div>
+        </form>
+
+        <!-- Already Submitted Message -->
+        <div class="already-submitted" id="alreadySubmitted">
+            <div class="already-submitted-icon">✅</div>
+            <h2>Obrigado!</h2>
+            <p>Sua resposta já foi registrada. Agradecemos por compartilhar seu feedback conosco.</p>
         </div>
     </div>
 
     <script>
-        window.DEBUG = true;
-
-        if (window.DEBUG) {
-            console.log('🚀 Página CSAT carregada');
-            console.log('📍 URL:', window.location.href);
-            console.log('🔗 Search params:', window.location.search);
+        // Get ticket ID from URL params
+        function getTicketId() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('ticketId');
         }
 
-        const ratingLabels = {
-            '5': 'Muito Satisfeito',
-            '4': 'Satisfeito',
-            '3': 'Neutro',
-            '2': 'Insatisfeito',
-            '1': 'Muito Insatisfeito'
-        };
+        // Show/hide spinner
+        function showSpinner(show = true) {
+            const spinner = document.getElementById('spinnerOverlay');
+            if (show) {
+                spinner.classList.add('active');
+            } else {
+                spinner.classList.remove('active');
+            }
+        }
 
-        const reasonLabels = {
-            'delay': 'O problema demorou muito para ser resolvido',
-            'unresolved': 'O problema não foi resolvido',
-            'unclear': 'As informações fornecidas não eram claras nem úteis'
-        };
+        // Show error message
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('active');
+            setTimeout(() => {
+                errorEl.classList.remove('active');
+            }, 5000);
+        }
 
-        async function checkIfSurveyAlreadySubmitted(ticketId) {
+        // Show success message
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.classList.add('active');
+            setTimeout(() => {
+                successEl.classList.remove('active');
+            }, 3000);
+        }
+
+        // Check if survey was already submitted
+        async function checkSurveyStatus() {
+            const ticketId = getTicketId();
+            
+            if (!ticketId) {
+                showError('ID do ticket não fornecido. Verifique a URL.');
+                return false;
+            }
+
             try {
-                console.log('🔍 Verificando se survey já foi submetida para ticket:', ticketId);
-                
-                const response = await fetch(`/api/check-survey-status?ticketId=${ticketId}`);
-                
+                showSpinner(true);
+
+                const response = await fetch(`/api/check-survey-status?ticketId=${encodeURIComponent(ticketId)}`);
+                const data = await response.json();
+
+                showSpinner(false);
+
                 if (!response.ok) {
-                    console.error('❌ Erro ao verificar status:', response.status);
+                    console.warn('Erro ao verificar status:', data.error);
+                    // Se houver erro, permitir que o usuário preencha a pesquisa
                     return false;
                 }
 
-                const result = await response.json();
-                console.log('✅ Status da survey:', result);
-                
-                return result.already_submitted || false;
-
+                return data.alreadySubmitted === true;
             } catch (error) {
-                console.error('❌ Erro na verificação:', error);
+                console.error('Erro ao verificar survey status:', error);
+                showSpinner(false);
+                showError('Erro ao verificar status da pesquisa. Tente novamente.');
                 return false;
             }
         }
 
-        function showErrorMessage(message) {
-            const errorMessage = document.getElementById('errorMessage');
-            const errorText = errorMessage.querySelector('.error-message-text');
-            errorText.textContent = message;
-            errorMessage.classList.add('visible');
+        // Initialize rating buttons
+        function initRatingButtons() {
+            const ratingBtns = document.querySelectorAll('.rating-btn');
+            const commentSection = document.getElementById('commentSection');
+
+            ratingBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    // Remove active class from all buttons
+                    ratingBtns.forEach(b => b.classList.remove('active'));
+
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+
+                    // Show comment section
+                    commentSection.classList.add('active');
+                });
+            });
         }
 
-        function hideLoadingSpinner() {
-            document.getElementById('loadingSpinner').classList.remove('visible');
-        }
+        // Handle form submission
+        async function handleSubmit(e) {
+            e.preventDefault();
 
-        function showLoadingSpinner() {
-            document.getElementById('loadingSpinner').classList.add('visible');
-        }
+            const ticketId = getTicketId();
+            const ratingBtn = document.querySelector('.rating-btn.active');
+            const comment = document.getElementById('comment').value;
 
-        function getTicketIdFromUrl() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('ticketId') || null;
-        }
-
-        function initializeTicketId() {
-            const ticketId = getTicketIdFromUrl();
-            
-            if (ticketId) {
-                document.getElementById('ticketId').value = ticketId;
-                document.getElementById('ticketNumber').textContent = ticketId;
-                document.getElementById('ticketBadge').style.display = 'inline-block';
-                console.log('🎫 Ticket ID capturado:', ticketId);
-            } else {
-                console.warn('⚠️ Nenhum ticketId encontrado na URL');
+            if (!ratingBtn) {
+                showError('Por favor, selecione uma avaliação.');
+                return;
             }
-        }
 
-        const form = document.getElementById('csatForm');
-        const ratingButtons = document.querySelectorAll('.rating-btn');
-        const ratingInput = document.getElementById('rating');
-        const pergunta2 = document.getElementById('pergunta2');
-        const reasonRadios = document.querySelectorAll('input[name="reason"]');
-        const reasonInput = document.getElementById('reason');
-        const alertBox = document.getElementById('alert');
-        const ticketIdInput = document.getElementById('ticketId');
-        const submitBtn = document.getElementById('submitBtn');
-        const thankYouModal = document.getElementById('thankYouModal');
-        const closeBtn = document.getElementById('closeBtn');
+            const rating = ratingBtn.dataset.value;
+            const emoji = ratingBtn.dataset.emoji;
 
-        ratingButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                ratingButtons.forEach(btn => btn.classList.remove('selected'));
-                this.classList.add('selected');
-                const value = this.dataset.value;
-                ratingInput.value = value;
-
-                if (value <= 3) {
-                    pergunta2.classList.add('visible');
-                } else {
-                    pergunta2.classList.remove('visible');
-                    reasonRadios.forEach(radio => radio.checked = false);
-                    reasonInput.value = '';
-                }
-            });
-        });
-
-        reasonRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                reasonInput.value = this.value;
-            });
-        });
-
-        function generateSubmissionId() {
-            const ticketId = ticketIdInput.value || 'unknown';
-            const timestamp = Date.now();
-            return `survey_${ticketId}_${timestamp}`;
-        }
-
-        function buildPayload() {
-            const rating = ratingInput.value;
-            const reason = reasonInput.value;
-
-            return {
-                event_type: 'csat_survey_submitted',
-                timestamp: new Date().toISOString(),
-                survey_data: {
-                    ticket_id: ticketIdInput.value,
-                    rating: parseInt(rating),
-                    rating_label: ratingLabels[rating],
-                    reason: reason ? reason : null,
-                    reason_label: reason ? reasonLabels[reason] : null,
-                    impressions: document.getElementById('impressions').value.trim(),
-                    source: 'zendesk_widget_csat'
-                },
-                metadata: {
-                    user_agent: navigator.userAgent,
-                    submission_id: generateSubmissionId(),
-                    page_url: window.location.href
-                }
-            };
-        }
-
-        async function submitSurvey(payload) {
             try {
-                console.log('📤 Enviando para /api/submit-survey:', payload);
+                showSpinner(true);
 
                 const response = await fetch('/api/submit-survey', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        ticketId,
+                        rating: parseInt(rating),
+                        emoji,
+                        comment: comment || null,
+                    }),
                 });
 
+                const data = await response.json();
+                showSpinner(false);
+
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(data.error || 'Erro ao enviar pesquisa');
                 }
 
-                const result = await response.json();
-                console.log('✅ Resposta do backend:', result);
-                return result;
+                showSuccess('✅ Pesquisa enviada com sucesso!');
 
-            } catch (error) {
-                console.error('❌ Erro ao enviar para backend:', error);
-                throw error;
-            }
-        }
-
-        function showAlert(message, type) {
-            alertBox.textContent = message;
-            alertBox.className = `alert ${type} visible`;
-
-            if (type === 'success') {
+                // Hide form and show submitted message
                 setTimeout(() => {
-                    alertBox.classList.remove('visible');
-                }, 3000);
-            }
-        }
-
-        function showThankYouModal() {
-            document.getElementById('thankYouTicket').textContent = ticketIdInput.value;
-            thankYouModal.classList.add('visible');
-            form.style.display = 'none';
-        }
-
-        function closeThankYouModal() {
-            thankYouModal.classList.remove('visible');
-        }
-
-        // ============================================
-        // FUNÇÃO: Fechar Modal de Erro
-        // ============================================
-        
-        function closeErrorMessage() {
-            const errorMessage = document.getElementById('errorMessage');
-            if (errorMessage) {
-                errorMessage.classList.remove('visible');
-                // Opcional: recarregar página ou ir para página anterior
-                // setTimeout(() => { window.history.back(); }, 500);
-            }
-        }
-
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            if (!ratingInput.value) {
-                showAlert('Por favor, selecione uma opção na Pergunta 1.', 'error');
-                return;
-            }
-
-            if (ratingInput.value <= 3 && !reasonInput.value) {
-                showAlert('Por favor, selecione um motivo na Pergunta 2.', 'error');
-                return;
-            }
-
-            if (!ticketIdInput.value) {
-                showAlert('⚠️ Ticket ID não encontrado. Verifique a URL.', 'error');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            showAlert('⏳ Enviando pesquisa...', 'loading');
-
-            try {
-                const payload = buildPayload();
-                await submitSurvey(payload);
-                
-                alertBox.classList.remove('visible');
-                showThankYouModal();
-                console.log('✅ Pesquisa enviada com sucesso!');
-
+                    showAlreadySubmitted();
+                }, 1500);
             } catch (error) {
-                showAlert('❌ Erro ao enviar pesquisa. Tente novamente.', 'error');
-                console.error('Erro detalhado:', error);
-                submitBtn.disabled = false;
+                showSpinner(false);
+                console.error('Erro ao enviar pesquisa:', error);
+                showError(`Erro ao enviar: ${error.message}`);
             }
-        });
-
-        closeBtn.addEventListener('click', closeThankYouModal);
-
-        thankYouModal.addEventListener('click', function(e) {
-            if (e.target === thankYouModal) {
-                closeThankYouModal();
-            }
-        });
-
-        // ============================================
-        // EVENT LISTENERS: Modal de Erro
-        // ============================================
-        
-        const closeErrorBtn = document.getElementById('closeErrorBtn');
-        const errorMessage = document.getElementById('errorMessage');
-        
-        if (closeErrorBtn) {
-            closeErrorBtn.addEventListener('click', closeErrorMessage);
-        }
-        
-        if (errorMessage) {
-            errorMessage.addEventListener('click', function(e) {
-                // Fechar se clicar fora do conteúdo
-                if (e.target === errorMessage) {
-                    closeErrorMessage();
-                }
-            });
         }
 
-        form.addEventListener('reset', function() {
-            setTimeout(() => {
-                ratingButtons.forEach(btn => btn.classList.remove('selected'));
-                pergunta2.classList.remove('visible');
-                reasonRadios.forEach(radio => radio.checked = false);
-                alertBox.classList.remove('visible');
-                submitBtn.disabled = false;
-                form.style.display = 'block';
-                thankYouModal.classList.remove('visible');
-                document.getElementById('errorMessage').classList.remove('visible');
-            }, 0);
-        });
+        // Show form or already submitted message
+        function showForm() {
+            document.getElementById('surveyForm').classList.add('active');
+            document.getElementById('alreadySubmitted').classList.remove('active');
+        }
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🔄 Página carregada, inicializando...');
-            
-            initializeTicketId();
-            
-            const ticketId = document.getElementById('ticketId').value;
-            
-            console.log('🎫 Ticket ID:', ticketId);
-            
-            if (ticketId && ticketId.trim() !== '') {
-                console.log('✅ Ticket ID válido, iniciando verificação...');
-                
-                showLoadingSpinner();
-                
-                try {
-                    const alreadySubmitted = await checkIfSurveyAlreadySubmitted(ticketId);
-                    
-                    console.log('📊 Resultado da verificação:', alreadySubmitted);
-                    
-                    hideLoadingSpinner();
-                    
-                    if (alreadySubmitted) {
-                        console.log('❌ Survey JÁ submetida - escondendo form, mostrando erro');
-                        
-                        form.style.display = 'none';
-                        
-                        showErrorMessage(
-                            '⚠️ Pesquisa Já Submetida\n\n' +
-                            'Uma pesquisa de satisfação já foi submetida para este ticket.\n' +
-                            'Você não pode submeter novamente.\n\n' +
-                            'Obrigado por sua participação!'
-                        );
-                        
-                    } else {
-                        console.log('✅ Survey NÃO submetida - mostrando form, escondendo erro');
-                        
-                        form.style.display = 'block';
-                        
-                        const errorMsg = document.getElementById('errorMessage');
-                        if (errorMsg) errorMsg.classList.remove('visible');
-                    }
-                    
-                } catch (error) {
-                    console.error('❌ Erro durante verificação:', error);
-                    hideLoadingSpinner();
-                    
-                    form.style.display = 'block';
-                }
-                
+        function showAlreadySubmitted() {
+            document.getElementById('surveyForm').classList.remove('active');
+            document.getElementById('alreadySubmitted').classList.add('active');
+        }
+
+        // Initialize on page load
+        async function init() {
+            showSpinner(true);
+
+            const alreadySubmitted = await checkSurveyStatus();
+
+            showSpinner(false);
+
+            if (alreadySubmitted) {
+                showAlreadySubmitted();
             } else {
-                console.log('⚠️ Sem ticket ID, mostrando form normalmente');
-                
-                form.style.display = 'block';
+                showForm();
+                initRatingButtons();
+
+                // Attach form submission handler
+                document.getElementById('surveyForm').addEventListener('submit', handleSubmit);
+
+                // Reset button handler
+                document.getElementById('resetBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
+                    document.getElementById('commentSection').classList.remove('active');
+                    document.getElementById('comment').value = '';
+                });
             }
-        });
+        }
+
+        // Run on DOM ready
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
