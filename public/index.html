@@ -46,6 +46,41 @@
             font-size: 14px;
         }
 
+        /* Debug Console */
+        .debug-console {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 2px solid #00ff00;
+        }
+
+        .debug-console.hidden {
+            display: none;
+        }
+
+        .debug-line {
+            margin: 5px 0;
+            padding: 3px 0;
+        }
+
+        .debug-line.error {
+            color: #ff4444;
+        }
+
+        .debug-line.success {
+            color: #44ff44;
+        }
+
+        .debug-line.info {
+            color: #ffff44;
+        }
+
         /* Loading Spinner */
         .spinner-overlay {
             display: none;
@@ -314,6 +349,11 @@
             <p>Sua opinião é importante para nós</p>
         </div>
 
+        <!-- Debug Console -->
+        <div class="debug-console" id="debugConsole">
+            <div class="debug-line info">🐛 Console de Debug Ativado</div>
+        </div>
+
         <!-- Error Message -->
         <div class="error-message" id="errorMessage"></div>
 
@@ -371,10 +411,26 @@
     </div>
 
     <script>
+        // Debug Logger
+        const debugLog = {
+            log(message, type = 'info') {
+                console.log(`[${type.toUpperCase()}] ${message}`);
+                
+                const debugConsole = document.getElementById('debugConsole');
+                const line = document.createElement('div');
+                line.className = `debug-line ${type}`;
+                line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                debugConsole.appendChild(line);
+                debugConsole.scrollTop = debugConsole.scrollHeight;
+            }
+        };
+
         // Get ticket ID from URL params
         function getTicketId() {
             const params = new URLSearchParams(window.location.search);
-            return params.get('ticketId');
+            const ticketId = params.get('ticketId');
+            debugLog.log(`Ticket ID obtido: ${ticketId || 'NÃO FORNECIDO'}`, 'info');
+            return ticketId;
         }
 
         // Show/hide spinner
@@ -382,8 +438,10 @@
             const spinner = document.getElementById('spinnerOverlay');
             if (show) {
                 spinner.classList.add('active');
+                debugLog.log('Spinner ativado', 'info');
             } else {
                 spinner.classList.remove('active');
+                debugLog.log('Spinner desativado', 'info');
             }
         }
 
@@ -392,6 +450,7 @@
             const errorEl = document.getElementById('errorMessage');
             errorEl.textContent = message;
             errorEl.classList.add('active');
+            debugLog.log(`Erro exibido: ${message}`, 'error');
             setTimeout(() => {
                 errorEl.classList.remove('active');
             }, 5000);
@@ -402,6 +461,7 @@
             const successEl = document.getElementById('successMessage');
             successEl.textContent = message;
             successEl.classList.add('active');
+            debugLog.log(`Sucesso: ${message}`, 'success');
             setTimeout(() => {
                 successEl.classList.remove('active');
             }, 3000);
@@ -412,27 +472,40 @@
             const ticketId = getTicketId();
             
             if (!ticketId) {
+                debugLog.log('ID do ticket não fornecido na URL', 'error');
                 showError('ID do ticket não fornecido. Verifique a URL.');
                 return false;
             }
 
             try {
                 showSpinner(true);
+                debugLog.log(`Iniciando verificação de survey para ticket: ${ticketId}`, 'info');
 
-                const response = await fetch(`/api/check-survey-status?ticketId=${encodeURIComponent(ticketId)}`);
+                const url = `/api/check-survey-status?ticketId=${encodeURIComponent(ticketId)}`;
+                debugLog.log(`URL da requisição: ${url}`, 'info');
+
+                const response = await fetch(url);
+                debugLog.log(`Status HTTP: ${response.status}`, 'info');
+
                 const data = await response.json();
+                debugLog.log(`Resposta JSON: ${JSON.stringify(data)}`, 'info');
 
                 showSpinner(false);
 
                 if (!response.ok) {
+                    debugLog.log(`Erro na resposta: ${data.error}`, 'error');
                     console.warn('Erro ao verificar status:', data.error);
                     // Se houver erro, permitir que o usuário preencha a pesquisa
                     return false;
                 }
 
-                return data.alreadySubmitted === true;
+                const alreadySubmitted = data.alreadySubmitted === true;
+                debugLog.log(`Survey já submetido: ${alreadySubmitted}`, alreadySubmitted ? 'success' : 'info');
+
+                return alreadySubmitted;
             } catch (error) {
                 console.error('Erro ao verificar survey status:', error);
+                debugLog.log(`Exceção: ${error.message}`, 'error');
                 showSpinner(false);
                 showError('Erro ao verificar status da pesquisa. Tente novamente.');
                 return false;
@@ -444,6 +517,8 @@
             const ratingBtns = document.querySelectorAll('.rating-btn');
             const commentSection = document.getElementById('commentSection');
 
+            debugLog.log(`${ratingBtns.length} botões de rating encontrados`, 'info');
+
             ratingBtns.forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -453,6 +528,7 @@
 
                     // Add active class to clicked button
                     btn.classList.add('active');
+                    debugLog.log(`Rating selecionado: ${btn.dataset.emoji}`, 'success');
 
                     // Show comment section
                     commentSection.classList.add('active');
@@ -470,11 +546,14 @@
 
             if (!ratingBtn) {
                 showError('Por favor, selecione uma avaliação.');
+                debugLog.log('Tentativa de envio sem rating selecionado', 'error');
                 return;
             }
 
             const rating = ratingBtn.dataset.value;
             const emoji = ratingBtn.dataset.emoji;
+
+            debugLog.log(`Enviando survey: ticket=${ticketId}, rating=${rating}, emoji=${emoji}`, 'info');
 
             try {
                 showSpinner(true);
@@ -493,6 +572,7 @@
                 });
 
                 const data = await response.json();
+                debugLog.log(`Resposta do submit: ${JSON.stringify(data)}`, 'info');
                 showSpinner(false);
 
                 if (!response.ok) {
@@ -500,6 +580,7 @@
                 }
 
                 showSuccess('✅ Pesquisa enviada com sucesso!');
+                debugLog.log('Survey enviado com sucesso', 'success');
 
                 // Hide form and show submitted message
                 setTimeout(() => {
@@ -508,23 +589,27 @@
             } catch (error) {
                 showSpinner(false);
                 console.error('Erro ao enviar pesquisa:', error);
+                debugLog.log(`Erro ao enviar: ${error.message}`, 'error');
                 showError(`Erro ao enviar: ${error.message}`);
             }
         }
 
         // Show form or already submitted message
         function showForm() {
+            debugLog.log('Exibindo formulário', 'info');
             document.getElementById('surveyForm').classList.add('active');
             document.getElementById('alreadySubmitted').classList.remove('active');
         }
 
         function showAlreadySubmitted() {
+            debugLog.log('Exibindo mensagem de já submetido', 'success');
             document.getElementById('surveyForm').classList.remove('active');
             document.getElementById('alreadySubmitted').classList.add('active');
         }
 
         // Initialize on page load
         async function init() {
+            debugLog.log('Inicializando aplicação...', 'info');
             showSpinner(true);
 
             const alreadySubmitted = await checkSurveyStatus();
@@ -532,8 +617,10 @@
             showSpinner(false);
 
             if (alreadySubmitted) {
+                debugLog.log('Survey já foi submetido - mostrando mensagem', 'success');
                 showAlreadySubmitted();
             } else {
+                debugLog.log('Survey não foi submetido - mostrando formulário', 'info');
                 showForm();
                 initRatingButtons();
 
@@ -546,6 +633,7 @@
                     document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
                     document.getElementById('commentSection').classList.remove('active');
                     document.getElementById('comment').value = '';
+                    debugLog.log('Formulário resetado', 'info');
                 });
             }
         }
