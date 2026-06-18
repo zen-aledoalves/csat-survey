@@ -436,6 +436,25 @@
 </head>
 <body>
     <div class="container">
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loadingSpinner">
+          <div class="spinner"></div>
+        </div>
+        
+        <!-- Erro: Survey Já Submetida -->
+        <div class="error-message" id="errorMessage">
+          <div class="error-content">
+            <div class="error-icon">⚠️</div>
+            <div class="error-title">Pesquisa Já Submetida</div>
+            <div class="error-message-text">
+              Uma pesquisa de satisfação já foi submetida para este ticket.
+              Você não pode submeter novamente.
+              <br><br>
+              Obrigado por sua participação!
+            </div>
+          </div>
+        </div>
+        
         <div class="header">
             <h1>📊 Pesquisa de Satisfação</h1>
             <p>Sua opinião é muito importante para nós</p>
@@ -750,6 +769,82 @@
         document.addEventListener('DOMContentLoaded', function() {
             initializeTicketId();
         });
+        .error-message {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+      }
+    
+      .error-message.visible {
+        display: flex;
+      }
+    
+      .error-content {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        max-width: 400px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.4s ease;
+      }
+    
+      .error-icon {
+        font-size: 60px;
+        margin-bottom: 16px;
+      }
+    
+      .error-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 12px;
+      }
+    
+      .error-message-text {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+      }
+    
+      .loading-spinner {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 1999;
+        justify-content: center;
+        align-items: center;
+      }
+    
+      .loading-spinner.visible {
+        display: flex;
+      }
+    
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+    
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
     </script>
 </body>
 </html>
