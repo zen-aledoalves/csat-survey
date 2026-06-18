@@ -436,25 +436,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Loading Spinner -->
-        <div class="loading-spinner" id="loadingSpinner">
-          <div class="spinner"></div>
-        </div>
-        
-        <!-- Erro: Survey Já Submetida -->
-        <div class="error-message" id="errorMessage">
-          <div class="error-content">
-            <div class="error-icon">⚠️</div>
-            <div class="error-title">Pesquisa Já Submetida</div>
-            <div class="error-message-text">
-              Uma pesquisa de satisfação já foi submetida para este ticket.
-              Você não pode submeter novamente.
-              <br><br>
-              Obrigado por sua participação!
-            </div>
-          </div>
-        </div>
-        
         <div class="header">
             <h1>📊 Pesquisa de Satisfação</h1>
             <p>Sua opinião é muito importante para nós</p>
@@ -549,7 +530,103 @@
         </div>
     </div>
 
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Erro: Survey Já Submetida -->
+    <div class="error-message" id="errorMessage">
+        <div class="error-content">
+            <div class="error-icon">⚠️</div>
+            <div class="error-title">Pesquisa Já Submetida</div>
+            <div class="error-message-text">
+                Uma pesquisa de satisfação já foi submetida para este ticket.
+                Você não pode submeter novamente.
+                <br><br>
+                Obrigado por sua participação!
+            </div>
+        </div>
+    </div>
+    
     <script>
+        // ============================================
+        // VERIFICAÇÃO DE SURVEY DUPLICADO
+        // ============================================
+    
+        async function checkIfSurveyAlreadySubmitted(ticketId) {
+            try {
+                console.log('🔍 Verificando se survey já foi submetida para ticket:', ticketId);
+                
+                const response = await fetch(`/api/check-survey-status?ticketId=${ticketId}`);
+                
+                if (!response.ok) {
+                    console.error('❌ Erro ao verificar status:', response.status);
+                    return false;
+                }
+    
+                const result = await response.json();
+                console.log('✅ Status da survey:', result);
+                
+                return result.already_submitted || false;
+    
+            } catch (error) {
+                console.error('❌ Erro na verificação:', error);
+                return false;
+            }
+        }
+    
+        function showErrorMessage(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = errorMessage.querySelector('.error-message-text');
+            errorText.textContent = message;
+            errorMessage.classList.add('visible');
+        }
+    
+        function hideLoadingSpinner() {
+            document.getElementById('loadingSpinner').classList.remove('visible');
+        }
+    
+        function showLoadingSpinner() {
+            document.getElementById('loadingSpinner').classList.add('visible');
+        }
+    
+        // ============================================
+        // MODIFICAR A INICIALIZAÇÃO EXISTENTE
+        // ============================================
+    
+        // Encontre esta linha no seu código:
+        // document.addEventListener('DOMContentLoaded', function() {
+    
+        // E SUBSTITUA POR:
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            initializeTicketId();
+            
+            const ticketId = document.getElementById('ticketId').value;
+            
+            if (ticketId) {
+                console.log('🎫 Verificando survey para ticket:', ticketId);
+                showLoadingSpinner();
+                
+                const alreadySubmitted = await checkIfSurveyAlreadySubmitted(ticketId);
+                hideLoadingSpinner();
+                
+                if (alreadySubmitted) {
+                    console.log('⚠️ Survey já foi submetida!');
+                    document.getElementById('csatForm').style.display = 'none';
+                    showErrorMessage(
+                        'Uma pesquisa de satisfação já foi submetida para este ticket.\n\n' +
+                        'Você não pode submeter novamente.\n\n' +
+                        'Obrigado por sua participação!'
+                    );
+                } else {
+                    console.log('✅ Survey não foi submetida, mostrando formulário');
+                    document.getElementById('csatForm').style.display = 'block';
+                }
+            }
+        });
+        
         // Mapeamento de valores para labels
         const ratingLabels = {
             '5': 'Muito Satisfeito',
