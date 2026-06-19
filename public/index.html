@@ -159,21 +159,24 @@
             display: block;
         }
 
-        textarea {
+        select, textarea {
             width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-family: inherit;
             font-size: 14px;
-            resize: vertical;
-            min-height: 100px;
             transition: border-color 0.2s ease;
         }
 
-        textarea:focus {
+        select:focus, textarea:focus {
             outline: none;
             border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
         }
 
         .button-group {
@@ -322,34 +325,45 @@
 
         <!-- Survey Form -->
         <form class="survey-form" id="surveyForm">
-            <!-- Question 1: Rating -->
+            <!-- Pergunta 1: Rating -->
             <div class="form-group">
                 <label for="rating">Como você avalia o atendimento recebido?</label>
                 <div class="rating-options">
-                    <button type="button" class="rating-btn" data-value="1" data-emoji="😞">
+                    <button type="button" class="rating-btn" data-value="1" data-emoji="😞" data-label="Very Unsatisfied">
                         <span>😞</span>
                         <span class="rating-label">Péssimo</span>
                     </button>
-                    <button type="button" class="rating-btn" data-value="2" data-emoji="😕">
+                    <button type="button" class="rating-btn" data-value="2" data-emoji="😕" data-label="Unsatisfied">
                         <span>😕</span>
                         <span class="rating-label">Ruim</span>
                     </button>
-                    <button type="button" class="rating-btn" data-value="3" data-emoji="😐">
+                    <button type="button" class="rating-btn" data-value="3" data-emoji="😐" data-label="Neutral">
                         <span>😐</span>
                         <span class="rating-label">Neutro</span>
                     </button>
-                    <button type="button" class="rating-btn" data-value="4" data-emoji="🙂">
+                    <button type="button" class="rating-btn" data-value="4" data-emoji="🙂" data-label="Satisfied">
                         <span>🙂</span>
                         <span class="rating-label">Bom</span>
                     </button>
-                    <button type="button" class="rating-btn" data-value="5" data-emoji="😊">
+                    <button type="button" class="rating-btn" data-value="5" data-emoji="😊" data-label="Very Satisfied">
                         <span>😊</span>
                         <span class="rating-label">Excelente</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Question 2: Conditional Comment -->
+            <!-- Pergunta 2: Reason (Condicional - Aparece quando rating <= 3) -->
+            <div class="form-group conditional-question" id="reasonSection">
+                <label for="reason">Selecione um motivo relacionado à sua experiência.</label>
+                <select id="reason" required>
+                    <option value="">Escolha uma opção...</option>
+                    <option value="problem_took_long">O problema demorou muito para ser resolvido.</option>
+                    <option value="problem_not_solved">O problema não foi resolvido.</option>
+                    <option value="unclear_information">As informações fornecidas não eram claras nem úteis.</option>
+                </select>
+            </div>
+
+            <!-- Pergunta 3: Impressions/Comment -->
             <div class="form-group conditional-question" id="commentSection">
                 <label for="comment">Você gostaria de comentar sobre sua experiência? (Opcional)</label>
                 <textarea id="comment" placeholder="Digite seu comentário aqui..."></textarea>
@@ -441,7 +455,9 @@
         // Initialize rating buttons
         function initRatingButtons() {
             const ratingBtns = document.querySelectorAll('.rating-btn');
+            const reasonSection = document.getElementById('reasonSection');
             const commentSection = document.getElementById('commentSection');
+            const reasonSelect = document.getElementById('reason');
 
             ratingBtns.forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -453,7 +469,19 @@
                     // Add active class to clicked button
                     btn.classList.add('active');
 
-                    // Show comment section
+                    const rating = parseInt(btn.dataset.value);
+
+                    // Mostrar Pergunta 2 (Reason) apenas se rating <= 3 (Péssimo, Ruim, Neutro)
+                    if (rating <= 3) {
+                        reasonSection.classList.add('active');
+                        reasonSelect.setAttribute('required', 'required');
+                    } else {
+                        reasonSection.classList.remove('active');
+                        reasonSelect.removeAttribute('required');
+                        reasonSelect.value = ''; // Reset reason select
+                    }
+
+                    // Sempre mostrar Pergunta 3 (Comment)
                     commentSection.classList.add('active');
                 });
             });
@@ -465,6 +493,7 @@
 
             const ticketId = getTicketId();
             const ratingBtn = document.querySelector('.rating-btn.active');
+            const reason = document.getElementById('reason').value || null;
             const comment = document.getElementById('comment').value;
 
             if (!ratingBtn) {
@@ -472,8 +501,14 @@
                 return;
             }
 
-            const rating = ratingBtn.dataset.value;
-            const emoji = ratingBtn.dataset.emoji;
+            const rating = parseInt(ratingBtn.dataset.value);
+            const ratingLabel = ratingBtn.dataset.label;
+
+            // Validar que reason é obrigatório se rating <= 3
+            if (rating <= 3 && !reason) {
+                showError('Por favor, selecione um motivo para sua avaliação.');
+                return;
+            }
 
             try {
                 showSpinner(true);
@@ -485,9 +520,10 @@
                     },
                     body: JSON.stringify({
                         ticketId,
-                        rating: parseInt(rating),
-                        emoji,
-                        comment: comment || null,
+                        rating,
+                        ratingLabel,
+                        reason,
+                        impressions: comment || null,
                     }),
                 });
 
@@ -543,6 +579,8 @@
                 document.getElementById('resetBtn').addEventListener('click', (e) => {
                     e.preventDefault();
                     document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
+                    document.getElementById('reasonSection').classList.remove('active');
+                    document.getElementById('reason').value = '';
                     document.getElementById('commentSection').classList.remove('active');
                     document.getElementById('comment').value = '';
                 });
