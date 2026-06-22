@@ -3,9 +3,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { ticketId, rating, ratingLabel, reason, impressions } = req.body;
+  const { ticketId, rating, ratingLabel, reasonId, reasonLabel, impressions } = req.body;
 
-  console.log(`[submit-survey] Recebido: ticket=${ticketId}, rating=${rating}, reason=${reason}`);
+  console.log(`[submit-survey] Recebido: ticket=${ticketId}, rating=${rating}, reasonId=${reasonId}, reasonLabel=${reasonLabel}`);
 
   if (!ticketId || rating === undefined) {
     return res.status(400).json({ error: 'ticketId and rating are required' });
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       throw new Error('ZENDESK_WEBHOOK_URL not configured');
     }
 
-    // PAYLOAD COM ID ESPECÍFICO DO REASON
+    // PAYLOAD COM ID E LABEL DO REASON
     const payload = {
       event_type: 'csat_survey_submitted',
       timestamp: new Date().toISOString(),
@@ -26,7 +26,10 @@ export default async function handler(req, res) {
         ticket_id: String(ticketId),
         rating: rating,
         rating_label: ratingLabel,
-        reason: reason || null,
+        reason: {
+          id: reasonId || null,
+          label: reasonLabel || null
+        },
         impressions: impressions || null,
         source: 'zendesk_widget_csat'
       }
