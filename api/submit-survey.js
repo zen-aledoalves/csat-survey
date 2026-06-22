@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
   const { ticketId, rating, ratingLabel, reasonId, reasonLabel, impressions } = req.body;
 
-  console.log(`[submit-survey] Recebido: ticket=${ticketId}, rating=${rating}, reasonId=${reasonId}, reasonLabel=${reasonLabel}`);
+  console.log(`[submit-survey] Recebido: ticket=${ticketId}, rating=${rating}, reasonId=${reasonId}`);
 
   if (!ticketId || rating === undefined) {
     return res.status(400).json({ error: 'ticketId and rating are required' });
@@ -18,20 +18,32 @@ export default async function handler(req, res) {
       throw new Error('ZENDESK_WEBHOOK_URL not configured');
     }
 
-    // PAYLOAD COM ID E LABEL DO REASON
+    // PAYLOAD CONFORME TEMPLATE ESPECIFICADO
     const payload = {
-      event_type: 'csat_survey_submitted',
-      timestamp: new Date().toISOString(),
-      survey_data: {
-        ticket_id: String(ticketId),
-        rating: rating,
-        rating_label: ratingLabel,
-        reason: {
-          id: reasonId || null,
-          label: reasonLabel || null
-        },
-        impressions: impressions || null,
-        source: 'zendesk_widget_csat'
+      survey_response: {
+        answers: [
+          {
+            question_id: '01JBW4BRF29N010EJ6HCYHDZHK',
+            rating: rating,
+            type: 'rating_scale'
+          },
+          {
+            question_id: '01JBW4BRF22AJ4KAFQD72PP4KC',
+            selections: [
+              {
+                type: 'pre_defined',
+                value: reasonId || null
+              }
+            ],
+            type: 'closed_ended'
+          },
+          {
+            question_id: '01JBW4BRF2MHZ4CYGTQS2XWG1H',
+            type: 'open_ended',
+            value: impressions || null
+          }
+        ],
+        locale: 'en-us'
       }
     };
 
