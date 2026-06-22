@@ -18,8 +18,9 @@ export default async function handler(req, res) {
       throw new Error('ZENDESK_WEBHOOK_URL not configured');
     }
 
-    // PAYLOAD CONFORME TEMPLATE ESPECIFICADO
+    // PAYLOAD COM TICKET ID INCLUÍDO
     const payload = {
+      ticket_id: String(ticketId),
       survey_response: {
         answers: [
           {
