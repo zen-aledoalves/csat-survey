@@ -357,9 +357,9 @@
                 <label for="reason">Selecione um motivo relacionado à sua experiência.</label>
                 <select id="reason" required>
                     <option value="">Escolha uma opção...</option>
-                    <option value="01JBW4BRF2AWJSK5R2Y59KR0A8">O problema demorou muito para ser resolvido.</option>
-                    <option value="01JBW4BRF23G576BQXSWSF9AQW">O problema não foi resolvido.</option>
-                    <option value="01JBW4BRF2FBMX8E3NXHV29FXW">As informações fornecidas não eram claras nem úteis.</option>
+                    <option value="01JBW4BRF2AWJSK5R2Y59KR0A8" data-label="O problema demorou muito para ser resolvido.">O problema demorou muito para ser resolvido.</option>
+                    <option value="01JBW4BRF23G576BQXSWSF9AQW" data-label="O problema não foi resolvido.">O problema não foi resolvido.</option>
+                    <option value="01JBW4BRF2FBMX8E3NXHV29FXW" data-label="As informações fornecidas não eram claras nem úteis.">As informações fornecidas não eram claras nem úteis.</option>
                 </select>
             </div>
 
@@ -493,7 +493,9 @@
 
             const ticketId = getTicketId();
             const ratingBtn = document.querySelector('.rating-btn.active');
-            const reasonId = document.getElementById('reason').value || null;
+            const reasonSelect = document.getElementById('reason');
+            const reasonId = reasonSelect.value || null;
+            const reasonLabel = reasonId ? reasonSelect.options[reasonSelect.selectedIndex].getAttribute('data-label') : null;
             const comment = document.getElementById('comment').value;
 
             if (!ratingBtn) {
@@ -522,7 +524,8 @@
                         ticketId,
                         rating,
                         ratingLabel,
-                        reason: reasonId,
+                        reasonId,
+                        reasonLabel,
                         impressions: comment || null,
                     }),
                 });
