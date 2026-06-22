@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       throw new Error('ZENDESK_WEBHOOK_URL not configured');
     }
 
-    // PAYLOAD CONFORME ESPECIFICADO
+    // PAYLOAD COM ID ESPECÍFICO DO REASON
     const payload = {
       event_type: 'csat_survey_submitted',
       timestamp: new Date().toISOString(),
