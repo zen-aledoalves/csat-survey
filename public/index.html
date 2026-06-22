@@ -357,9 +357,9 @@
                 <label for="reason">Selecione um motivo relacionado à sua experiência.</label>
                 <select id="reason" required>
                     <option value="">Escolha uma opção...</option>
-                    <option value="problem_took_long">O problema demorou muito para ser resolvido.</option>
-                    <option value="problem_not_solved">O problema não foi resolvido.</option>
-                    <option value="unclear_information">As informações fornecidas não eram claras nem úteis.</option>
+                    <option value="01JBW4BRF2AWJSK5R2Y59KR0A8">O problema demorou muito para ser resolvido.</option>
+                    <option value="01JBW4BRF23G576BQXSWSF9AQW">O problema não foi resolvido.</option>
+                    <option value="01JBW4BRF2FBMX8E3NXHV29FXW">As informações fornecidas não eram claras nem úteis.</option>
                 </select>
             </div>
 
@@ -493,7 +493,7 @@
 
             const ticketId = getTicketId();
             const ratingBtn = document.querySelector('.rating-btn.active');
-            const reason = document.getElementById('reason').value || null;
+            const reasonId = document.getElementById('reason').value || null;
             const comment = document.getElementById('comment').value;
 
             if (!ratingBtn) {
@@ -505,7 +505,7 @@
             const ratingLabel = ratingBtn.dataset.label;
 
             // Validar que reason é obrigatório se rating <= 3
-            if (rating <= 3 && !reason) {
+            if (rating <= 3 && !reasonId) {
                 showError('Por favor, selecione um motivo para sua avaliação.');
                 return;
             }
@@ -522,7 +522,7 @@
                         ticketId,
                         rating,
                         ratingLabel,
-                        reason,
+                        reason: reasonId,
                         impressions: comment || null,
                     }),
                 });
